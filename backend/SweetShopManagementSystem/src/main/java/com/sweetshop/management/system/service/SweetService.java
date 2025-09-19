@@ -9,8 +9,10 @@ import java.util.List;
 public interface SweetService {
     public List<SweetResponse> getAllSweets();
     public SweetResponse addSweet(SweetRequest sweetRequest);
-    public List<SweetResponse> searchSweets(String name, SweetCategory category,int minPrice,int maxPrice);
+    public List<SweetResponse> searchSweets(String name, SweetCategory category,Integer minPrice,Integer maxPrice);
     public SweetResponse updateSweet(String id,SweetRequest sweetRequest);
+
+
     public SweetResponse deleteSweet(String id);
     public String purchaseSweet(String id);
     public void restockSweet(String id,Long quantity);

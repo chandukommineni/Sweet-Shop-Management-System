@@ -15,7 +15,9 @@ public interface SweetRepository extends MongoRepository<Sweet, String> {
 
     Optional<Sweet> findByName(String name);
 
+    List<Sweet> findByNameContainingIgnoreCase(String name);
+
     List<Sweet> findByCategory(SweetCategory category);
 
-    List<Sweet> findByPriceBetween(int minPrice, int maxPrice);
+    List<Sweet> findByPriceGreaterThanEqualAndPriceLessThanEqual(int minPrice, int maxPrice);
 }

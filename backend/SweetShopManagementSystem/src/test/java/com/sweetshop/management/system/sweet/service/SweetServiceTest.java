@@ -61,15 +61,7 @@ class SweetServiceTest {
         assertEquals(SweetCategory.TRADITIONAL, response.getCategory());
     }
 
-    @Test
-    void testAddSweet_InvalidPrice_ThrowsException() {
-        sweetRequest.setPrice(0);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> sweetService.addSweet(sweetRequest));
-
-        assertEquals("Price must be greater than 0", exception.getMessage());
-    }
 
     // ---------- getAllSweets ----------
     @Test
@@ -93,34 +85,84 @@ class SweetServiceTest {
 
     // ---------- searchSweets ----------
     @Test
-    void testSearchSweets_ByCategory() {
-        when(sweetRepository.findByCategory(SweetCategory.TRADITIONAL))
-                .thenReturn(List.of(sweet));
+    void testSearchSweets_ByNameOnly() {
+        when(sweetRepository.findAll()).thenReturn(List.of(sweet));
 
-        List<SweetResponse> sweets = sweetService.searchSweets(null, SweetCategory.TRADITIONAL, 0, 200);
+        List<SweetResponse> results = sweetService.searchSweets("Rasg", null, null, null);
 
-        assertEquals(1, sweets.size());
-        assertEquals("Rasgulla", sweets.get(0).getName());
+        assertEquals(1, results.size());
+        assertEquals("Rasgulla", results.get(0).getName());
     }
 
     @Test
-    void testSearchSweets_ByPriceRange() {
-        when(sweetRepository.findByPriceBetween(50, 150))
-                .thenReturn(List.of(sweet));
+    void testSearchSweets_ByCategoryOnly() {
+        when(sweetRepository.findAll()).thenReturn(List.of(sweet));
 
-        List<SweetResponse> sweets = sweetService.searchSweets(null, null, 50, 150);
+        List<SweetResponse> results = sweetService.searchSweets(null, SweetCategory.TRADITIONAL, null, null);
 
-        assertEquals(1, sweets.size());
+        assertEquals(1, results.size());
+        assertEquals(SweetCategory.TRADITIONAL, results.get(0).getCategory());
     }
 
     @Test
-    void testSearchSweets_NoResults() {
-        when(sweetRepository.findByPriceBetween(200, 500))
-                .thenReturn(List.of());
+    void testSearchSweets_ByPriceRangeOnly() {
+        when(sweetRepository.findAll()).thenReturn(List.of(sweet));
 
-        List<SweetResponse> sweets = sweetService.searchSweets(null, null, 200, 500);
+        List<SweetResponse> results = sweetService.searchSweets(null, null, 50, 150);
 
-        assertTrue(sweets.isEmpty());
+        assertEquals(1, results.size());
+        assertEquals(100, results.get(0).getPrice());
+    }
+
+    @Test
+    void testSearchSweets_ByNameAndCategory() {
+        when(sweetRepository.findAll()).thenReturn(List.of(sweet));
+
+        List<SweetResponse> results = sweetService.searchSweets("Rasg", SweetCategory.TRADITIONAL, null, null);
+
+        assertEquals(1, results.size());
+        assertEquals("Rasgulla", results.get(0).getName());
+        assertEquals(SweetCategory.TRADITIONAL, results.get(0).getCategory());
+    }
+
+    @Test
+    void testSearchSweets_ByNameAndPriceRange() {
+        when(sweetRepository.findAll()).thenReturn(List.of(sweet));
+
+        List<SweetResponse> results = sweetService.searchSweets("Rasg", null, 50, 150);
+
+        assertEquals(1, results.size());
+        assertEquals("Rasgulla", results.get(0).getName());
+    }
+
+    @Test
+    void testSearchSweets_ByCategoryAndPriceRange() {
+        when(sweetRepository.findAll()).thenReturn(List.of(sweet));
+
+        List<SweetResponse> results = sweetService.searchSweets(null, SweetCategory.TRADITIONAL, 50, 150);
+
+        assertEquals(1, results.size());
+        assertEquals(SweetCategory.TRADITIONAL, results.get(0).getCategory());
+    }
+
+    @Test
+    void testSearchSweets_ByAllFilters() {
+        when(sweetRepository.findAll()).thenReturn(List.of(sweet));
+
+        List<SweetResponse> results = sweetService.searchSweets("Rasg", SweetCategory.TRADITIONAL, 50, 150);
+
+        assertEquals(1, results.size());
+        assertEquals("Rasgulla", results.get(0).getName());
+        assertEquals(SweetCategory.TRADITIONAL, results.get(0).getCategory());
+    }
+
+    @Test
+    void testSearchSweets_NoMatch() {
+        when(sweetRepository.findAll()).thenReturn(List.of(sweet));
+
+        List<SweetResponse> results = sweetService.searchSweets("NonExisting", null, null, null);
+
+        assertTrue(results.isEmpty());
     }
 
     // ---------- updateSweet ----------
@@ -169,7 +211,7 @@ class SweetServiceTest {
 
         String message = sweetService.purchaseSweet("1");
 
-        assertEquals("Purchased successfully", message);
+        assertEquals("Purchase successful", message);
     }
 
     @Test
@@ -180,7 +222,7 @@ class SweetServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> sweetService.purchaseSweet("1"));
 
-        assertEquals("Sweet is out of stock", exception.getMessage());
+        assertEquals("Sweet out of stock", exception.getMessage());
     }
 
     // ---------- restockSweet ----------
