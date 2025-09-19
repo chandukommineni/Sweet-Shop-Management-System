@@ -19,13 +19,13 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        LoginResponse response = null;
+        LoginResponse response = authService.login(loginRequest);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest registerRequest) {
-        RegisterResponse response =null;
+        RegisterResponse response = authService.register(registerRequest);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }
