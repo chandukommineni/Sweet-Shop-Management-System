@@ -2,6 +2,7 @@ package com.sweetshop.management.system.model;
 
 import com.sweetshop.management.system.constants.SweetCategory;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,10 +21,10 @@ public class Sweet {
     private  String id;
     @NotBlank(message ="Sweet Name is Required")
     private String Name;
-    @NotBlank(message = "Category is Required")
+    @NotNull(message = "Category is Required")
     private SweetCategory Category;
-    @NotBlank(message="Price is Required")
-    private Long price;
+    @NotNull(message="Price is Required")
+    private int price;
     private Long quantity=0l;
     @CreatedDate
     private Instant createdAt;
