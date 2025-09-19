@@ -2,6 +2,7 @@ package com.sweetshop.management.system.exceptionhandler;
 
 import com.sweetshop.management.system.dto.ErrorResponse;
 import com.sweetshop.management.system.exceptionhandler.exceptions.InvalidCredentialsException;
+import com.sweetshop.management.system.exceptionhandler.exceptions.SweetNotFoundException;
 import com.sweetshop.management.system.exceptionhandler.exceptions.UserAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(InvalidCredentialsException invalidCredentialsException){
         ErrorResponse errorResponse= ErrorResponse.builder()
                 .message(invalidCredentialsException.getMessage())
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .build();
+        return new ResponseEntity<>(errorResponse,HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(SweetNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleSweetNotFoundException(SweetNotFoundException sweetNotFoundException){
+        ErrorResponse errorResponse= ErrorResponse.builder()
+                .message(sweetNotFoundException.getMessage())
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .build();
         return new ResponseEntity<>(errorResponse,HttpStatus.NOT_FOUND);

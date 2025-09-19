@@ -16,4 +16,6 @@ public interface SweetService {
     public SweetResponse deleteSweet(String id);
     public String purchaseSweet(String id);
     public void restockSweet(String id,Long quantity);
+
+    SweetResponse getSweetById(String id);
 }

@@ -3,6 +3,7 @@ package com.sweetshop.management.system.service.serviceImpl;
 import com.sweetshop.management.system.constants.SweetCategory;
 import com.sweetshop.management.system.dto.SweetRequest;
 import com.sweetshop.management.system.dto.SweetResponse;
+import com.sweetshop.management.system.exceptionhandler.exceptions.SweetNotFoundException;
 import com.sweetshop.management.system.model.Sweet;
 import com.sweetshop.management.system.repository.SweetRepository;
 import com.sweetshop.management.system.service.SweetService;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -107,9 +109,18 @@ public class SweetServiceImpl implements SweetService {
     @Override
     public void restockSweet(String id, Long quantity) {
         Sweet sweet = sweetRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Sweet not found"));
+                .orElseThrow(() -> new SweetNotFoundException("Sweet not found"));
 
         sweet.setQuantity(sweet.getQuantity() + quantity);
         sweetRepository.save(sweet);
     }
+
+    @Override
+    public SweetResponse getSweetById(String id) {
+        Sweet sweet = sweetRepository.findById(id)
+                .orElseThrow(() -> new SweetNotFoundException("Sweet Not Found"));
+
+        return mapToResponse(sweet);
+    }
+
 }
