@@ -1,22 +1,24 @@
 // src/components/Register/Register.test.jsx
 import { render, screen, fireEvent } from "@testing-library/react";
 import Register from "./index";
-import { describe, test, expect, jest } from "@jest/globals";
+import { describe, test, expect, vi } from "vitest"; // ✅ use vi instead of jest
 
 describe("Register Component", () => {
   test("renders input fields and submit button", () => {
-    render(<Register handleSubmit={jest.fn()} />);
+    render(<Register handleSubmit={vi.fn()} />); // ✅ vi.fn()
 
     expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/role/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /register/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /register/i })
+    ).toBeInTheDocument();
   });
 
   test("calls handleSubmit with form data", () => {
-    const mockHandleSubmit = jest.fn();
-    render(<Register handleSubmit={mockHandleSubmit} />);
+    const mockHandleSubmit = vi.fn(); // ✅ vi.fn()
+    render(<Register onSubmit={mockHandleSubmit} />);
 
     fireEvent.change(screen.getByLabelText(/username/i), {
       target: { value: "chandu" },

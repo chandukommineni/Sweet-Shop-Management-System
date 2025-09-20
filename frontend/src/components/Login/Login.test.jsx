@@ -35,7 +35,7 @@ describe("Login Component", () => {
     await user.click(screen.getByRole("button", { name: /login/i }));
 
     expect(handleSubmit).toHaveBeenCalledWith({
-      username: "testuser",
+      userName: "testuser",
       password: "secret123",
     });
   });
