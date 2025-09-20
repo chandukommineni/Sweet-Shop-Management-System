@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// Try to load from localStorage when app starts
 const user = JSON.parse(localStorage.getItem("user")) || null;
 const token = localStorage.getItem("token") || null;
 const role = localStorage.getItem("role") || null;
@@ -9,7 +8,7 @@ const initialState = {
   user,
   token,
   role,
-  isAuthenticated: !!token,
+  isAuthenticated: token ? true : false,
 };
 
 const AuthSlice = createSlice({
@@ -45,7 +44,7 @@ const AuthSlice = createSlice({
       const user = JSON.parse(localStorage.getItem("user"));
       const token = localStorage.getItem("token");
       const role = localStorage.getItem("role");
-
+       
       if (user && token) {
         state.user = user;
         state.token = token;
