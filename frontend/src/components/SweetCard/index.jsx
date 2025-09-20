@@ -10,7 +10,7 @@ const SweetCard = ({ sweet, role, onPurchase, onEdit, onDelete }) => {
 
       {role === "ADMIN" && (
         <p className="text-sm text-gray-600">
-          Quantity:{" "}
+          Stock Available:{" "}
           <span className={sweet.quantity > 0 ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
             {sweet.quantity}
           </span>
