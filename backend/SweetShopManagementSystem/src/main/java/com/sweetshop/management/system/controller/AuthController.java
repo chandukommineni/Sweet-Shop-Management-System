@@ -12,14 +12,17 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     @Autowired
     private AuthService authService;
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+        System.out.println(loginRequest.toString());
         LoginResponse response = authService.login(loginRequest);
+        System.out.println(response.toString());
         return ResponseEntity.ok(response);
     }
 

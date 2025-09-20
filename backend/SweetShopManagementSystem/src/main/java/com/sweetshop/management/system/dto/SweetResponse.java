@@ -11,5 +11,5 @@ public class SweetResponse {
   private String name;
   private SweetCategory category;
   private int price;
-  private long quantiy;
+  private long quantity;
 }
