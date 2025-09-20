@@ -6,7 +6,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   
   return (
-    <nav className="flex justify-between items-center px-6 py-3 shadow-lg rounded-[25px] m-5">
+    <nav className="flex justify-between items-center px-6 py-3 shadow-lg md:rounded-[25px] md:mx-5">
     
       <div className="flex items-center gap-3">
         <img
