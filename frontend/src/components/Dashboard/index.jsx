@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   fetchSweets,
   searchSweets,
   purchaseSweet,
+  deleteSweet
 } from "../../store/slice/SweetSlice";
 import SweetCard from "../SweetCard";
 import { toast } from "react-toastify";
@@ -21,8 +23,9 @@ const categories = [
 
 const DashBoard = () => {
   const dispatch = useDispatch();
+  const navigate=useNavigate();
   const { items, loading, error } = useSelector((state) => state.sweets);
-
+  const{role}=useSelector((state)=>state.auth)
   const [filters, setFilters] = useState({
     name: "",
     category: "",
@@ -58,14 +61,24 @@ const DashBoard = () => {
     dispatch(purchaseSweet({ id, quantity }));
     toast.success("Sweet purchased successfully 🎉");
   };
+  const handleDelete = async (id) => {
+    try {
+      await dispatch(deleteSweet(id)).unwrap();
+      toast.success("Sweet deleted successfully ");
+    } catch (err) {
+      console.log(err)
+      toast.error("Failed to delete sweet");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-100 via-white to-purple-100 p-6">
+     
       <div className="max-w-7xl mx-auto">
    
         <div className="bg-white/70 backdrop-blur-md shadow-lg rounded-xl p-6 mb-10 border border-pink-200">
           <h2 className="text-2xl font-extrabold text-purple-700 mb-5">
-            Find Your Sweet
+            Find Your Favourite One's
           </h2>
           <div className="flex flex-wrap gap-4 items-center">
             <input
@@ -123,8 +136,22 @@ const DashBoard = () => {
             </button>
           </div>
         </div>
+      <div className="flex gap-4 items-center mb-6">
+       
+        <button
+          onClick={() => navigate("/sweets/new")}
+          className="bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:from-pink-600 hover:to-purple-600 transition-all duration-200"
+        >
+          ➕ Add Sweet
+        </button>
+        <p className="text-lg font-semibold text-pink-600 italic">
+        Life is sweeter with every bite 
+        </p>
 
-        {/* Sweet List */}
+      </div>
+
+
+ 
         {loading && (
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-pink-500 border-t-transparent"></div>
@@ -149,8 +176,10 @@ const DashBoard = () => {
               <SweetCard
                 key={sweet.id}
                 sweet={sweet}
-                role="USER"
-                onPurchase={(id) => handlePurchase(id, 1)}
+                role={role}
+                onPurchase={(id,quantity=1) => handlePurchase(id, quantity)}
+                onDelete={(id) => handleDelete(id)}
+                onEdit={(sweet) => navigate(`/sweets/${sweet.id}/edit`)}
               />
             ))}
           </div>

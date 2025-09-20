@@ -49,9 +49,10 @@ export const addSweet = createAsyncThunk(
 // Update sweet
 export const updateSweet = createAsyncThunk(
   "sweets/update",
-  async ({ id, sweetData }, { rejectWithValue }) => {
+  async ({ id, data }, { rejectWithValue }) => {
     try {
-      const res = await Api.put(`/sweets/${id}`, sweetData);
+      console.log(data);
+      const res = await Api.put(`/sweets/${id}`, data);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);

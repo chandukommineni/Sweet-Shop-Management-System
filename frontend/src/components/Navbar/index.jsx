@@ -1,15 +1,20 @@
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../store/slice/AuthSlice";
-
+import { useEffect } from "react";
 const Navbar = () => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  
+  const {expiresAt} = useSelector((state) => state.auth);
  const handleLogout = () => {
   dispatch(logout());
   
-};
+}; 
 
+ useEffect(() => {
+    if (expiresAt && Date.now() > expiresAt) {
+      dispatch(logout());
+    }
+  }, [expiresAt, dispatch]);
   return (
     <nav className="flex justify-between items-center px-6 py-3 shadow-lg md:rounded-[25px] md:mx-5">
       <div className="flex items-center gap-3">
@@ -25,7 +30,7 @@ const Navbar = () => {
 
       {user && (
         <div className="flex items-center gap-5">
-          <span className="text-sm ">
+          <span className="text-sm  hidden md:block">
             Welcome, <span className="font-semibold">{user.userName}</span>
           </span>
           <button

@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage'
 import DashBoardPage from './pages/DashBoardPage'
 import { Route, Routes } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
+import SweetEditorPage from './pages/SweetEditorPage';
 const App = () => {
   return (
     <>
@@ -13,6 +14,8 @@ const App = () => {
     <Routes>
       <Route path='/' element={<HomePage/>}/>
       <Route path='/dashboard' element={<DashBoardPage/>}/>
+      <Route path="/sweets/new" element={<SweetEditorPage />} />
+      <Route path="/sweets/:id/edit" element={<SweetEditorPage />} />
     </Routes>
     </>
   )
