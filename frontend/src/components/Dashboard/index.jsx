@@ -1,12 +1,9 @@
 import React from 'react'
-import SweetCard from '../SweetCard'
-const DashBoard = () => {
-  
+
+const index = () => {
   return (
-    <div>
-    
-    </div>
+    <div>index</div>
   )
 }
 
-export default DashBoard
+export default index

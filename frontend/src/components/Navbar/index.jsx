@@ -5,10 +5,10 @@ const Navbar = () => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   
-  const handleLogout = () => {
-    dispatch(logout());
+ const handleLogout = () => {
+  dispatch(logout());
   
-  };
+};
 
   return (
     <nav className="flex justify-between items-center px-6 py-3 shadow-lg md:rounded-[25px] md:mx-5">

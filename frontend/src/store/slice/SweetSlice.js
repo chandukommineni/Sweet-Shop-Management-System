@@ -1,13 +1,12 @@
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import {Api} from "../../api/Api";
+import { Api } from "../../api/Api";
 
-
+// Fetch all sweets
 export const fetchSweets = createAsyncThunk(
   "sweets/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await Api.get("/api/sweets");
+      const res = await Api.get("/sweets");
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
@@ -15,12 +14,31 @@ export const fetchSweets = createAsyncThunk(
   }
 );
 
+// 🔎 Search sweets
+export const searchSweets = createAsyncThunk(
+  "sweets/search",
+  async ({ name, category, minPrice, maxPrice }, { rejectWithValue }) => {
+    try {
+      const params = new URLSearchParams();
+      if (name) params.append("name", name);
+      if (category) params.append("category", category);
+      if (minPrice !== undefined) params.append("minPrice", minPrice);
+      if (maxPrice !== undefined) params.append("maxPrice", maxPrice);
 
+      const res = await Api.get(`/sweets/search?${params.toString()}`);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
+
+// Add sweet
 export const addSweet = createAsyncThunk(
   "sweets/add",
   async (sweetData, { rejectWithValue }) => {
     try {
-      const res = await Api.post("/api/sweets", sweetData);
+      const res = await Api.post("/sweets", sweetData);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
@@ -28,12 +46,12 @@ export const addSweet = createAsyncThunk(
   }
 );
 
-
+// Update sweet
 export const updateSweet = createAsyncThunk(
   "sweets/update",
   async ({ id, sweetData }, { rejectWithValue }) => {
     try {
-      const res = await Api.put(`/api/sweets/${id}`, sweetData);
+      const res = await Api.put(`/sweets/${id}`, sweetData);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
@@ -41,12 +59,12 @@ export const updateSweet = createAsyncThunk(
   }
 );
 
-
+// Delete sweet
 export const deleteSweet = createAsyncThunk(
   "sweets/delete",
   async (id, { rejectWithValue }) => {
     try {
-      await Api.delete(`/api/sweets/${id}`);
+      await Api.delete(`/sweets/${id}`);
       return id;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
@@ -54,19 +72,19 @@ export const deleteSweet = createAsyncThunk(
   }
 );
 
-
+// Purchase sweet
 export const purchaseSweet = createAsyncThunk(
   "sweets/purchase",
   async ({ id, quantity = 1 }, { rejectWithValue }) => {
     try {
       if (quantity > 1) {
         const res = await Api.post(
-          `/api/sweets/${id}/purchase/quantity?quantity=${quantity}`
+          `/sweets/${id}/purchase/quantity?quantity=${quantity}`
         );
-        return { id, message: res.data };
+        return { id, message: res.data, quantity };
       } else {
-        const res = await Api.post(`/api/sweets/${id}/purchase`);
-        return { id, message: res.data };
+        const res = await Api.post(`/sweets/${id}/purchase`);
+        return { id, message: res.data, quantity: 1 };
       }
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
@@ -74,20 +92,18 @@ export const purchaseSweet = createAsyncThunk(
   }
 );
 
-
+// Restock sweet
 export const restockSweet = createAsyncThunk(
   "sweets/restock",
   async ({ id, quantity }, { rejectWithValue }) => {
     try {
-      await Api.post(`/api/sweets/${id}/restock?quantity=${quantity}`);
+      await Api.post(`/sweets/${id}/restock?quantity=${quantity}`);
       return { id, quantity };
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }
   }
 );
-
-
 
 const sweetSlice = createSlice({
   name: "sweets",
@@ -118,6 +134,19 @@ const sweetSlice = createSlice({
         state.error = action.payload;
       })
 
+      // Search sweets
+      .addCase(searchSweets.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(searchSweets.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = action.payload;
+      })
+      .addCase(searchSweets.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
       // Add sweet
       .addCase(addSweet.fulfilled, (state, action) => {
         state.items.push(action.payload);
@@ -140,8 +169,8 @@ const sweetSlice = createSlice({
       // Purchase sweet
       .addCase(purchaseSweet.fulfilled, (state, action) => {
         const sweet = state.items.find((s) => s.id === action.payload.id);
-        if (sweet && sweet.quantity > 0) {
-          sweet.quantity -= 1; // Decrease local stock
+        if (sweet && sweet.quantity >= action.payload.quantity) {
+          sweet.quantity -= action.payload.quantity;
         }
         state.message = action.payload.message;
       })

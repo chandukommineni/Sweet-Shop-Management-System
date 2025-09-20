@@ -5,6 +5,7 @@ const DashBoardPage = () => {
   const { isAuthenticated } = useSelector((state) => state.auth);
 useEffect(()=>{
   if(!isAuthenticated){
+    
     window.location.href="/"
    }
 
