@@ -9,6 +9,6 @@ import lombok.Data;
 public class SweetRequest {
     private String name;
     private int price;
-    private SweetCategory sweetCategory;
+    private SweetCategory category;
     private Long quantity;
 }

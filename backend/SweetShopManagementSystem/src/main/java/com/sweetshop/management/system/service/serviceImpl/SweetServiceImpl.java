@@ -22,6 +22,7 @@ public class SweetServiceImpl implements SweetService {
 
     private SweetResponse mapToResponse(Sweet sweet) {
         return SweetResponse.builder()
+                .id(sweet.getId())
                 .name(sweet.getName())
                 .category(sweet.getCategory())
                 .price(sweet.getPrice())
@@ -32,7 +33,7 @@ public class SweetServiceImpl implements SweetService {
     private Sweet mapToEntity(SweetRequest request) {
         return Sweet.builder()
                 .name(request.getName())
-                .category(request.getSweetCategory())
+                .category(request.getCategory())
                 .price(request.getPrice())
                 .quantity(request.getQuantity() != null ? request.getQuantity() : 0L)
                 .build();
@@ -74,7 +75,7 @@ public class SweetServiceImpl implements SweetService {
                 .orElseThrow(() -> new RuntimeException("Sweet not found"));
 
         sweet.setName(sweetRequest.getName());
-        sweet.setCategory(sweetRequest.getSweetCategory());
+        sweet.setCategory(sweetRequest.getCategory());
         sweet.setPrice(sweetRequest.getPrice());
         sweet.setQuantity(sweetRequest.getQuantity());
 
@@ -101,6 +102,21 @@ public class SweetServiceImpl implements SweetService {
         }
 
         sweet.setQuantity(sweet.getQuantity() - 1);
+        sweetRepository.save(sweet);
+
+        return "Purchase successful";
+    }
+
+    @Override
+    public String purchaseSweetWithQuantity(String id, Long quantity) {
+        Sweet sweet = sweetRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Sweet not found"));
+
+        if (sweet.getQuantity()-quantity < 0) {
+            throw new RuntimeException("Required Quannityt not available");
+        }
+
+        sweet.setQuantity(sweet.getQuantity() - quantity);
         sweetRepository.save(sweet);
 
         return "Purchase successful";

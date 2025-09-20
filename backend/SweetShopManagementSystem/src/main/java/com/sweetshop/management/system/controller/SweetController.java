@@ -76,7 +76,11 @@ public class SweetController {
         String message = sweetService.purchaseSweet(id);
         return ResponseEntity.ok(message);
     }
-
+    @PostMapping("/{id}/purchase/quantity")
+    public ResponseEntity<String>  purchaseSweetwithQuantity(@PathVariable String id,@RequestParam("quantity")Long quantity) {
+        String message = sweetService.purchaseSweetWithQuantity(id,quantity);
+        return ResponseEntity.ok(message);
+    }
 
     @PostMapping("/{id}/restock")
     @PreAuthorize("hasRole('ADMIN')")
