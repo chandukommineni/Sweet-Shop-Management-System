@@ -1,4 +1,4 @@
-// src/components/Register/index.jsx
+
 import { useState } from "react";
 
 const Register = ({ onSubmit }) => {

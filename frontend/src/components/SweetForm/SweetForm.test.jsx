@@ -64,7 +64,6 @@ describe("SweetForm Component", () => {
 
     fireEvent.submit(screen.getByRole("button"));
 
-    // Since HTML5 form validation prevents submit, onSubmit should not be called
     expect(handleSubmit).not.toHaveBeenCalled();
   });
 });

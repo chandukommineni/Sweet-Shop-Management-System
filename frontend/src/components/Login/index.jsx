@@ -1,4 +1,4 @@
-// src/components/Login/index.jsx
+
 import { useState } from "react";
 
 const Login = ({ onSubmit }) => {
@@ -32,7 +32,7 @@ const Login = ({ onSubmit }) => {
         Login
       </h2>
 
-      {/* Username */}
+  
       <div className="mb-4">
         <label
           htmlFor="userName"
@@ -50,7 +50,7 @@ const Login = ({ onSubmit }) => {
         />
       </div>
 
-      {/* Password */}
+    
       <div className="mb-6">
         <label
           htmlFor="password"
@@ -68,7 +68,7 @@ const Login = ({ onSubmit }) => {
         />
       </div>
 
-      {/* Submit Button */}
+   
       <button
         type="submit"
         className="w-full py-2 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-lg shadow-md transition-all duration-300"

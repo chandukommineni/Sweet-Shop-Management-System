@@ -57,9 +57,16 @@ const DashBoard = () => {
     dispatch(fetchSweets());
   };
 
-  const handlePurchase = (id, quantity = 1) => {
-    dispatch(purchaseSweet({ id, quantity }));
-    toast.success("Sweet purchased successfully 🎉");
+  const handlePurchase = (id, quantity = 1,curQuantity) => {
+          if(curQuantity<quantity){
+                    toast.error("Purchase quantity exceeds available stock");
+                    return;
+                  }
+            dispatch(purchaseSweet({ id, quantity }));
+            toast.success("Sweet purchased successfully 🎉");
+   
+ 
+
   };
   const handleDelete = async (id) => {
     try {
@@ -177,7 +184,7 @@ const DashBoard = () => {
                 key={sweet.id}
                 sweet={sweet}
                 role={role}
-                onPurchase={(id,quantity=1) => handlePurchase(id, quantity)}
+                onPurchase={(id,quantity=1,curQuantity) => handlePurchase(id, quantity,curQuantity)}
                 onDelete={(id) => handleDelete(id)}
                 onEdit={(sweet) => navigate(`/sweets/${sweet.id}/edit`)}
               />

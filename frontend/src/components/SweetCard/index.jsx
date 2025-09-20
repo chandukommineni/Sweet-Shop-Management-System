@@ -4,10 +4,10 @@ import React, { useState } from "react";
 const SweetCard = ({ sweet, role, onPurchase, onEdit, onDelete }) => {
   const [purchaseQty, setPurchaseQty] = useState(1);
 
-  const handlePurchase = () => {
+  const handlePurchase = (curQuantity) => {
     if (purchaseQty > 0) {
       console.log("Purchasing", purchaseQty, "of", sweet.name);
-      onPurchase(sweet.id, purchaseQty);
+      onPurchase(sweet.id, purchaseQty,curQuantity);
       setPurchaseQty(1);
     }
   };
@@ -55,7 +55,7 @@ const SweetCard = ({ sweet, role, onPurchase, onEdit, onDelete }) => {
           className="w-16 border rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 disabled:bg-gray-100"
         />
         <button
-          onClick={handlePurchase}
+          onClick={()=>handlePurchase(sweet.quantity)}
           disabled={sweet.quantity <= 0}
           className="flex-1 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >

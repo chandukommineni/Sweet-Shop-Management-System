@@ -1,4 +1,4 @@
-// src/components/SweetForm/index.jsx
+
 import React, { useState, useEffect } from "react";
 
 const categories = [
@@ -49,7 +49,7 @@ const SweetForm = ({ sweet, onSubmit }) => {
         {sweet ? "Edit Sweet" : " Add Sweet"}
       </h2>
 
-      {/* Sweet Name */}
+    
       <div>
         <label
           htmlFor="name"
@@ -68,7 +68,7 @@ const SweetForm = ({ sweet, onSubmit }) => {
         />
       </div>
 
-      {/* Category */}
+
       <div>
         <label
           htmlFor="category"
@@ -93,7 +93,7 @@ const SweetForm = ({ sweet, onSubmit }) => {
         </select>
       </div>
 
-      {/* Price */}
+
       <div>
         <label
           htmlFor="price"
@@ -112,7 +112,6 @@ const SweetForm = ({ sweet, onSubmit }) => {
         />
       </div>
 
-      {/* Quantity */}
       <div>
         <label
           htmlFor="quantity"
@@ -131,7 +130,7 @@ const SweetForm = ({ sweet, onSubmit }) => {
         />
       </div>
 
-      {/* Submit */}
+     
       <button
         type="submit"
         className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold px-6 py-3 rounded-lg shadow-md hover:from-pink-600 hover:to-purple-600 transition-all duration-200"
