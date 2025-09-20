@@ -20,7 +20,7 @@ describe("SweetCard Component", () => {
     expect(screen.getByText(/₹50/)).toBeInTheDocument();
   });
 
-  it("calls onPurchase with correct id and quantity", () => {
+  it("calls onPurchase with correct id, quantity, and stock", () => {
     const handlePurchase = vi.fn();
     render(<SweetCard sweet={baseSweet} role="USER" onPurchase={handlePurchase} />);
 
@@ -29,7 +29,8 @@ describe("SweetCard Component", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Purchase/i }));
 
-    expect(handlePurchase).toHaveBeenCalledWith(1, 2);
+    // new expectation includes current stock as 5
+    expect(handlePurchase).toHaveBeenCalledWith(1, 2, 5);
   });
 
   it("resets quantity after purchase", () => {
@@ -41,7 +42,7 @@ describe("SweetCard Component", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Purchase/i }));
 
-    expect(input.value).toBe("1"); // reset to 1 after purchase
+    expect(input.value).toBe("1"); // reset back to 1
   });
 
   it("disables input and button when out of stock", () => {
@@ -75,7 +76,7 @@ describe("SweetCard Component", () => {
     expect(screen.getByText("5")).toBeInTheDocument();
   });
 
-  it("renders Edit and Delete buttons for ADMIN", () => {
+  it("renders Edit and Delete buttons for ADMIN and triggers them", () => {
     const handleEdit = vi.fn();
     const handleDelete = vi.fn();
 

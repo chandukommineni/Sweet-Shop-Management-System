@@ -8,9 +8,9 @@ describe("SweetForm Component", () => {
 
     expect(screen.getByLabelText(/Sweet Name/i)).toHaveValue("");
     expect(screen.getByLabelText(/Category/i)).toHaveValue("");
-    expect(screen.getByLabelText(/Price/i)).toHaveValue(null);
-    expect(screen.getByLabelText(/Quantity/i)).toHaveValue(null);
-    expect(screen.getByRole("button", { name: /Add Sweet/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/Price/i)).toHaveValue(null);     // number inputs = null
+    expect(screen.getByLabelText(/Quantity/i)).toHaveValue(null); // number inputs = null
+    expect(screen.getByRole("button", { name: /Add Sweet 🎉/i })).toBeInTheDocument();
   });
 
   it("renders form with pre-filled values when sweet is provided", () => {
@@ -21,7 +21,7 @@ describe("SweetForm Component", () => {
     expect(screen.getByLabelText(/Category/i)).toHaveValue("TRADITIONAL");
     expect(screen.getByLabelText(/Price/i)).toHaveValue(50);
     expect(screen.getByLabelText(/Quantity/i)).toHaveValue(10);
-    expect(screen.getByRole("button", { name: /Update Sweet/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Update Sweet ✨/i })).toBeInTheDocument();
   });
 
   it("updates form fields on user input", () => {
@@ -47,7 +47,7 @@ describe("SweetForm Component", () => {
     fireEvent.change(screen.getByLabelText(/Price/i), { target: { value: "80" } });
     fireEvent.change(screen.getByLabelText(/Quantity/i), { target: { value: "12" } });
 
-    fireEvent.submit(screen.getByRole("button"));
+    fireEvent.submit(screen.getByRole("button", { name: /Add Sweet 🎉/i }));
 
     expect(handleSubmit).toHaveBeenCalledTimes(1);
     expect(handleSubmit).toHaveBeenCalledWith({
@@ -62,8 +62,8 @@ describe("SweetForm Component", () => {
     const handleSubmit = vi.fn();
     render(<SweetForm onSubmit={handleSubmit} />);
 
-    fireEvent.submit(screen.getByRole("button"));
+    fireEvent.submit(screen.getByRole("button", { name: /Add Sweet 🎉/i }));
 
-    expect(handleSubmit).not.toHaveBeenCalled();
+    expect(handleSubmit).not.toHaveBeenCalled(); // will now pass
   });
 });

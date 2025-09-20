@@ -1,25 +1,29 @@
+// src/components/Dashboard/DashBoard.test.jsx
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { MemoryRouter } from "react-router-dom";
 import DashBoard from "./index";
 
-// --- Mocks ---
+// Mock react-redux
 vi.mock("react-redux", () => ({
   useDispatch: vi.fn(),
   useSelector: vi.fn(),
 }));
 
+// Mock toast
 vi.mock("react-toastify", () => ({
-  toast: { success: vi.fn() },
+  toast: { success: vi.fn(), error: vi.fn() },
 }));
 
-vi.mock("../components/SweetCard", () => ({
+// Mock SweetCard
+vi.mock("../SweetCard", () => ({
   default: ({ sweet, onPurchase }) => (
     <div data-testid="sweet-card">
       <span>{sweet.name}</span>
-      <button onClick={() => onPurchase(sweet.id)}>Buy</button>
+      <button onClick={() => onPurchase(sweet.id, 1, 5)}>Buy</button>
     </div>
   ),
 }));
@@ -28,8 +32,9 @@ vi.mock("../components/SweetCard", () => ({
 import * as SweetSlice from "../../store/slice/SweetSlice.js";
 vi.mock("../../store/slice/SweetSlice.js", () => ({
   fetchSweets: vi.fn(() => ({ type: "fetchSweets" })),
-  searchSweets: vi.fn(() => ({ type: "searchSweets" })),
-  purchaseSweet: vi.fn(() => ({ type: "purchaseSweet" })),
+  searchSweets: vi.fn((payload) => ({ type: "searchSweets", payload })),
+  purchaseSweet: vi.fn((payload) => ({ type: "purchaseSweet", payload })),
+  deleteSweet: vi.fn((payload) => ({ type: "deleteSweet", payload })),
 }));
 
 describe("DashBoard Component", () => {
@@ -45,34 +50,38 @@ describe("DashBoard Component", () => {
           loading: false,
           error: null,
         },
+        auth: { role: "USER" },
       })
     );
     vi.clearAllMocks();
   });
 
+  const renderWithRouter = (ui) =>
+    render(<MemoryRouter>{ui}</MemoryRouter>);
+
   it("dispatches fetchSweets on mount", () => {
-    render(<DashBoard />);
+    renderWithRouter(<DashBoard />);
     expect(mockDispatch).toHaveBeenCalledWith(SweetSlice.fetchSweets());
   });
 
   it("renders loader when loading is true", () => {
     useSelector.mockImplementation((fn) =>
-      fn({ sweets: { items: [], loading: true, error: null } })
+      fn({ sweets: { items: [], loading: true, error: null }, auth: { role: "USER" } })
     );
-    render(<DashBoard />);
+    renderWithRouter(<DashBoard />);
     expect(screen.getByRole("status")).toBeInTheDocument();
   });
 
   it("renders error message", () => {
     useSelector.mockImplementation((fn) =>
-      fn({ sweets: { items: [], loading: false, error: "Error loading" } })
+      fn({ sweets: { items: [], loading: false, error: "Error loading" }, auth: { role: "USER" } })
     );
-    render(<DashBoard />);
+    renderWithRouter(<DashBoard />);
     expect(screen.getByText("Error loading")).toBeInTheDocument();
   });
 
   it("renders empty state when no sweets", () => {
-    render(<DashBoard />);
+    renderWithRouter(<DashBoard />);
     expect(screen.getByText("No sweets found 🍬")).toBeInTheDocument();
   });
 
@@ -84,14 +93,15 @@ describe("DashBoard Component", () => {
           loading: false,
           error: null,
         },
+        auth: { role: "USER" },
       })
     );
-    render(<DashBoard />);
+    renderWithRouter(<DashBoard />);
     expect(screen.getAllByTestId("sweet-card")).toHaveLength(2);
   });
 
   it("handles search with filters", () => {
-    render(<DashBoard />);
+    renderWithRouter(<DashBoard />);
     fireEvent.change(screen.getByPlaceholderText("Search by Name"), {
       target: { value: "lad" },
     });
@@ -107,7 +117,7 @@ describe("DashBoard Component", () => {
   });
 
   it("clears filters and refetches sweets", () => {
-    render(<DashBoard />);
+    renderWithRouter(<DashBoard />);
     fireEvent.change(screen.getByPlaceholderText("Search by Name"), {
       target: { value: "lad" },
     });
@@ -124,17 +134,16 @@ describe("DashBoard Component", () => {
           loading: false,
           error: null,
         },
+        auth: { role: "USER" },
       })
     );
-    render(<DashBoard />);
+    renderWithRouter(<DashBoard />);
     fireEvent.click(screen.getByText("Buy"));
     expect(mockDispatch).toHaveBeenCalledWith(
       SweetSlice.purchaseSweet({ id: 1, quantity: 1 })
     );
     await waitFor(() =>
-      expect(toast.success).toHaveBeenCalledWith(
-        "Sweet purchased successfully 🎉"
-      )
+      expect(toast.success).toHaveBeenCalledWith("Sweet purchased successfully 🎉")
     );
   });
 });

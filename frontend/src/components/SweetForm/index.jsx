@@ -37,6 +37,9 @@ const SweetForm = ({ sweet, onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+      if (!form.name || !form.category || !form.price || !form.quantity) {
+    return; 
+  }
     onSubmit(form);
   };
 
