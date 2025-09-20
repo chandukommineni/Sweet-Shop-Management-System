@@ -34,19 +34,30 @@ const HomePage = () => {
     }
   };
 
+  const handleRegister = async (data) => {
+    try {
+      const response = await Api.post("/auth/register", data);
+      if (response.status === 201) {
+        toast.success("Registration successful! Please log in.");
+      }
+    } catch (error) {
+      toast.error("Registration failed. Please try again.");
+      console.error("Registration failed:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-pink-100 via-white to-purple-100 px-4">
-    
+      {/* Header */}
       <div className="text-center mb-10">
-   
         <img
-          src="/logo.png" 
+          src="/logo.png"
           alt="SweetShop Logo"
           className="h-28 w-28 mx-auto mb-4 drop-shadow-lg"
         />
 
- 
-        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-3">
+        {/* Fixed height for heading */}
+        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-3 h-12 flex items-center justify-center">
           <Typewriter
             words={["Welcome to SweetShop"]}
             cursor={false}
@@ -56,15 +67,15 @@ const HomePage = () => {
           />
         </h2>
 
-       
-        <p className="text-gray-600 text-lg">
+        {/* Fixed height for paragraph */}
+        <p className="text-gray-600 text-lg h-8 flex items-center justify-center">
           <Typewriter
             words={[
               "Satisfy your sweet cravings with our delicious sweets 🍬",
               "Freshly baked, just for you 🧁",
               "The sweetest place in town 🍫",
             ]}
-            loop={0} // infinite loop
+            loop={0}
             cursor={false}
             typeSpeed={70}
             deleteSpeed={50}
@@ -73,9 +84,12 @@ const HomePage = () => {
         </p>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-8 justify-center items-center">
+      {/* Forms container */}
+      <div className="flex flex-col md:flex-row gap-8 justify-center items-center w-[90%]">
         <Login onSubmit={handleLogin} />
-        <Register />
+        <div className="hidden md:block w-px bg-gray-300"></div>
+        <div className="block md:hidden h-px bg-gray-300 w-full"></div>
+        <Register onSubmit={handleRegister} />
       </div>
     </div>
   );

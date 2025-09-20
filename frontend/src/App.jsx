@@ -7,8 +7,9 @@ import { ToastContainer } from 'react-toastify'
 const App = () => {
   return (
     <>
+      <ToastContainer autoClose={1500}/>
     <Navbar/>
-    <ToastContainer autoClose={1500}/>
+
     <Routes>
       <Route path='/' element={<HomePage/>}/>
       <Route path='/dashboard' element={<DashBoardPage/>}/>
