@@ -26,7 +26,7 @@ public class SweetServiceImpl implements SweetService {
                 .name(sweet.getName())
                 .category(sweet.getCategory())
                 .price(sweet.getPrice())
-                .quantiy(sweet.getQuantity())
+                .quantity(sweet.getQuantity())
                 .build();
     }
 
@@ -62,8 +62,17 @@ public class SweetServiceImpl implements SweetService {
         return allSweets.stream()
                 .filter(sweet -> (name == null || name.isBlank() || sweet.getName().toLowerCase().contains(name.toLowerCase())))
                 .filter(sweet -> (category == null || sweet.getCategory() == category))
-                .filter(sweet -> (minPrice == null || maxPrice == null
-                        || (sweet.getPrice() >= minPrice && sweet.getPrice() <= maxPrice)))
+                .filter(sweet -> {
+                    if (minPrice != null && maxPrice != null) {
+                        return sweet.getPrice() >= minPrice && sweet.getPrice() <= maxPrice;
+                    } else if (minPrice != null) {
+                        return sweet.getPrice() >= minPrice;
+                    } else if (maxPrice != null) {
+                        return sweet.getPrice() <= maxPrice;
+                    } else {
+                        return true;
+                    }
+                })
                 .map(this::mapToResponse)
                 .toList();
     }
