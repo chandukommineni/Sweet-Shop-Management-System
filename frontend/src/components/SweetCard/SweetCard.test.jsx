@@ -1,46 +1,98 @@
 // src/components/SweetCard/SweetCard.test.jsx
 import { render, screen, fireEvent } from "@testing-library/react";
 import SweetCard from "./index";
-import { describe, test, expect, vi } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 
 describe("SweetCard Component", () => {
-  const sweet = {
-    id: "1",
-    name: "Laddu",
-    category: "INDIAN",
+  const baseSweet = {
+    id: 1,
+    name: "Gulab Jamun",
+    category: "TRADITIONAL",
     price: 50,
     quantity: 5,
   };
 
-  test("renders sweet details correctly", () => {
-    render(<SweetCard sweet={sweet} role="USER" onPurchase={vi.fn()} />);
+  it("renders sweet details", () => {
+    render(<SweetCard sweet={baseSweet} role="USER" onPurchase={() => {}} />);
 
-    expect(screen.getByText("Laddu")).toBeInTheDocument();
-    expect(screen.getByText(/Price: 50/i)).toBeInTheDocument();
-    expect(screen.getByText(/Quantity: 5/i)).toBeInTheDocument();
+    expect(screen.getByText("Gulab Jamun")).toBeInTheDocument();
+    expect(screen.getByText(/Category:/i)).toHaveTextContent("TRADITIONAL");
+    expect(screen.getByText(/₹50/)).toBeInTheDocument();
   });
 
-  test("shows Purchase button enabled when quantity > 0", () => {
-    render(<SweetCard sweet={sweet} role="USER" onPurchase={vi.fn()} />);
-    expect(screen.getByRole("button", { name: /purchase/i })).toBeEnabled();
+  it("calls onPurchase with correct id and quantity", () => {
+    const handlePurchase = vi.fn();
+    render(<SweetCard sweet={baseSweet} role="USER" onPurchase={handlePurchase} />);
+
+    const input = screen.getByRole("spinbutton");
+    fireEvent.change(input, { target: { value: "2" } });
+
+    fireEvent.click(screen.getByRole("button", { name: /Purchase/i }));
+
+    expect(handlePurchase).toHaveBeenCalledWith(1, 2);
   });
 
-  test("disables Purchase button when quantity = 0", () => {
-    const outOfStockSweet = { ...sweet, quantity: 0 };
-    render(<SweetCard sweet={outOfStockSweet} role="USER" onPurchase={vi.fn()} />);
-    expect(screen.getByRole("button", { name: /purchase/i })).toBeDisabled();
+  it("resets quantity after purchase", () => {
+    const handlePurchase = vi.fn();
+    render(<SweetCard sweet={baseSweet} role="USER" onPurchase={handlePurchase} />);
+
+    const input = screen.getByRole("spinbutton");
+    fireEvent.change(input, { target: { value: "3" } });
+
+    fireEvent.click(screen.getByRole("button", { name: /Purchase/i }));
+
+    expect(input.value).toBe("1"); // reset to 1 after purchase
   });
 
-  test("shows Edit and Delete buttons for ADMIN role", () => {
-    render(<SweetCard sweet={sweet} role="ADMIN" onPurchase={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />);
-    expect(screen.getByRole("button", { name: /edit/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /delete/i })).toBeInTheDocument();
+  it("disables input and button when out of stock", () => {
+    render(
+      <SweetCard
+        sweet={{ ...baseSweet, quantity: 0 }}
+        role="USER"
+        onPurchase={() => {}}
+      />
+    );
+
+    const input = screen.getByRole("spinbutton");
+    const button = screen.getByRole("button", { name: /Out of Stock/i });
+
+    expect(input).toBeDisabled();
+    expect(button).toBeDisabled();
   });
 
-  test("calls onPurchase when Purchase button clicked", () => {
-    const mockPurchase = vi.fn();
-    render(<SweetCard sweet={sweet} role="USER" onPurchase={mockPurchase} />);
-    fireEvent.click(screen.getByRole("button", { name: /purchase/i }));
-    expect(mockPurchase).toHaveBeenCalledWith(sweet.id);
+  it("shows stock info for ADMIN", () => {
+    render(
+      <SweetCard
+        sweet={baseSweet}
+        role="ADMIN"
+        onPurchase={() => {}}
+        onEdit={() => {}}
+        onDelete={() => {}}
+      />
+    );
+
+    expect(screen.getByText(/Stock Available:/i)).toBeInTheDocument();
+    expect(screen.getByText("5")).toBeInTheDocument();
+  });
+
+  it("renders Edit and Delete buttons for ADMIN", () => {
+    const handleEdit = vi.fn();
+    const handleDelete = vi.fn();
+
+    render(
+      <SweetCard
+        sweet={baseSweet}
+        role="ADMIN"
+        onPurchase={() => {}}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Edit/i }));
+    expect(handleEdit).toHaveBeenCalledWith(baseSweet);
+
+    fireEvent.click(screen.getByRole("button", { name: /Delete/i }));
+    expect(handleDelete).toHaveBeenCalledWith(1);
   });
 });

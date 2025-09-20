@@ -1,184 +1,140 @@
-// src/components/__tests__/Dashboard.test.jsx
-import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { Provider } from "react-redux";
-import configureStore from "redux-mock-store";
-import thunk from "redux-thunk";
-import Dashboard from "../Dashboard";
-import { fetchSweets } from "../../store/slice/SweetSlice";
-import toast from "react-hot-toast";
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { vi, describe, it, expect, beforeEach } from "vitest";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import DashBoard from "./index";
 
-vi.mock("../../redux/slices/sweetSlice", () => ({
-  fetchSweets: vi.fn(),
+// --- Mocks ---
+vi.mock("react-redux", () => ({
+  useDispatch: vi.fn(),
+  useSelector: vi.fn(),
 }));
 
-vi.mock("react-hot-toast", () => ({
-  success: vi.fn(),
+vi.mock("react-toastify", () => ({
+  toast: { success: vi.fn() },
 }));
 
-const middlewares = [thunk];
-const mockStore = configureStore(middlewares);
+vi.mock("../components/SweetCard", () => ({
+  default: ({ sweet, onPurchase }) => (
+    <div data-testid="sweet-card">
+      <span>{sweet.name}</span>
+      <button onClick={() => onPurchase(sweet.id)}>Buy</button>
+    </div>
+  ),
+}));
 
-describe("Dashboard Component", () => {
-  let store;
+// Mock actions
+import * as SweetSlice from "../../store/slice/SweetSlice.js";
+vi.mock("../../store/slice/SweetSlice.js", () => ({
+  fetchSweets: vi.fn(() => ({ type: "fetchSweets" })),
+  searchSweets: vi.fn(() => ({ type: "searchSweets" })),
+  purchaseSweet: vi.fn(() => ({ type: "purchaseSweet" })),
+}));
+
+describe("DashBoard Component", () => {
+  let mockDispatch;
 
   beforeEach(() => {
-    store = mockStore({
-      sweets: {
-        items: [],
-        loading: false,
-        error: null,
-      },
-    });
+    mockDispatch = vi.fn();
+    useDispatch.mockReturnValue(mockDispatch);
+    useSelector.mockImplementation((fn) =>
+      fn({
+        sweets: {
+          items: [],
+          loading: false,
+          error: null,
+        },
+      })
+    );
+    vi.clearAllMocks();
   });
 
-  test("renders loader when loading", () => {
-    store = mockStore({
-      sweets: { items: [], loading: true, error: null },
-    });
-
-    render(
-      <Provider store={store}>
-        <Dashboard />
-      </Provider>
-    );
-
-    expect(screen.getByText(/Loading.../i)).toBeInTheDocument();
+  it("dispatches fetchSweets on mount", () => {
+    render(<DashBoard />);
+    expect(mockDispatch).toHaveBeenCalledWith(SweetSlice.fetchSweets());
   });
 
-  test("renders sweet cards when data is available", () => {
-    store = mockStore({
-      sweets: {
-        items: [
-          { id: 1, name: "Laddu", category: "TRADITIONAL", price: 50, quantity: 5 },
-        ],
-        loading: false,
-        error: null,
-      },
-    });
-
-    render(
-      <Provider store={store}>
-        <Dashboard />
-      </Provider>
+  it("renders loader when loading is true", () => {
+    useSelector.mockImplementation((fn) =>
+      fn({ sweets: { items: [], loading: true, error: null } })
     );
-
-    expect(screen.getByText(/Laddu/i)).toBeInTheDocument();
+    render(<DashBoard />);
+    expect(screen.getByRole("status")).toBeInTheDocument();
   });
 
-  test("shows 'No items found' when filter results are empty", () => {
-    store = mockStore({
-      sweets: { items: [], loading: false, error: null },
-    });
-
-    render(
-      <Provider store={store}>
-        <Dashboard />
-      </Provider>
+  it("renders error message", () => {
+    useSelector.mockImplementation((fn) =>
+      fn({ sweets: { items: [], loading: false, error: "Error loading" } })
     );
-
-    expect(screen.getByText(/No items found/i)).toBeInTheDocument();
+    render(<DashBoard />);
+    expect(screen.getByText("Error loading")).toBeInTheDocument();
   });
 
-  test("filters sweets by name", async () => {
-    store = mockStore({
-      sweets: {
-        items: [
-          { id: 1, name: "Laddu", category: "TRADITIONAL", price: 50, quantity: 5 },
-          { id: 2, name: "Barfi", category: "MILK_BASED", price: 70, quantity: 3 },
-        ],
-        loading: false,
-        error: null,
-      },
-    });
-
-    render(
-      <Provider store={store}>
-        <Dashboard />
-      </Provider>
-    );
-
-    fireEvent.change(screen.getByPlaceholderText(/Search by name/i), {
-      target: { value: "Barfi" },
-    });
-
-    expect(await screen.findByText(/Barfi/i)).toBeInTheDocument();
-    expect(screen.queryByText(/Laddu/i)).not.toBeInTheDocument();
+  it("renders empty state when no sweets", () => {
+    render(<DashBoard />);
+    expect(screen.getByText("No sweets found 🍬")).toBeInTheDocument();
   });
 
-  test("filters sweets by category", async () => {
-    store = mockStore({
-      sweets: {
-        items: [
-          { id: 1, name: "Laddu", category: "TRADITIONAL", price: 50, quantity: 5 },
-          { id: 2, name: "Chocolate Fudge", category: "CHOCOLATE", price: 100, quantity: 2 },
-        ],
-        loading: false,
-        error: null,
-      },
-    });
-
-    render(
-      <Provider store={store}>
-        <Dashboard />
-      </Provider>
+  it("renders sweet cards when items exist", () => {
+    useSelector.mockImplementation((fn) =>
+      fn({
+        sweets: {
+          items: [{ id: 1, name: "Ladoo" }, { id: 2, name: "Barfi" }],
+          loading: false,
+          error: null,
+        },
+      })
     );
-
-    fireEvent.change(screen.getByLabelText(/Category/i), {
-      target: { value: "CHOCOLATE" },
-    });
-
-    expect(await screen.findByText(/Chocolate Fudge/i)).toBeInTheDocument();
-    expect(screen.queryByText(/Laddu/i)).not.toBeInTheDocument();
+    render(<DashBoard />);
+    expect(screen.getAllByTestId("sweet-card")).toHaveLength(2);
   });
 
-  test("filters sweets by price range", async () => {
-    store = mockStore({
-      sweets: {
-        items: [
-          { id: 1, name: "Laddu", category: "TRADITIONAL", price: 50, quantity: 5 },
-          { id: 2, name: "Premium Barfi", category: "MILK_BASED", price: 200, quantity: 2 },
-        ],
-        loading: false,
-        error: null,
-      },
+  it("handles search with filters", () => {
+    render(<DashBoard />);
+    fireEvent.change(screen.getByPlaceholderText("Search by Name"), {
+      target: { value: "lad" },
     });
-
-    render(
-      <Provider store={store}>
-        <Dashboard />
-      </Provider>
+    fireEvent.click(screen.getByText("Search"));
+    expect(mockDispatch).toHaveBeenCalledWith(
+      SweetSlice.searchSweets({
+        name: "lad",
+        category: "",
+        minPrice: undefined,
+        maxPrice: undefined,
+      })
     );
-
-    fireEvent.change(screen.getByLabelText(/Min Price/i), { target: { value: 100 } });
-    fireEvent.change(screen.getByLabelText(/Max Price/i), { target: { value: 250 } });
-
-    expect(await screen.findByText(/Premium Barfi/i)).toBeInTheDocument();
-    expect(screen.queryByText(/Laddu/i)).not.toBeInTheDocument();
   });
 
-  test("displays toast message on successful purchase", async () => {
-    store = mockStore({
-      sweets: {
-        items: [
-          { id: 1, name: "Laddu", category: "TRADITIONAL", price: 50, quantity: 5 },
-        ],
-        loading: false,
-        error: null,
-      },
+  it("clears filters and refetches sweets", () => {
+    render(<DashBoard />);
+    fireEvent.change(screen.getByPlaceholderText("Search by Name"), {
+      target: { value: "lad" },
     });
+    fireEvent.click(screen.getByText("Clear"));
+    expect(mockDispatch).toHaveBeenCalledWith(SweetSlice.fetchSweets());
+    expect(screen.getByPlaceholderText("Search by Name").value).toBe("");
+  });
 
-    render(
-      <Provider store={store}>
-        <Dashboard />
-      </Provider>
+  it("handles purchase", async () => {
+    useSelector.mockImplementation((fn) =>
+      fn({
+        sweets: {
+          items: [{ id: 1, name: "Ladoo" }],
+          loading: false,
+          error: null,
+        },
+      })
     );
-
-    fireEvent.click(screen.getByText(/Purchase/i));
-
-    await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith("Purchase successful!");
-    });
+    render(<DashBoard />);
+    fireEvent.click(screen.getByText("Buy"));
+    expect(mockDispatch).toHaveBeenCalledWith(
+      SweetSlice.purchaseSweet({ id: 1, quantity: 1 })
+    );
+    await waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith(
+        "Sweet purchased successfully 🎉"
+      )
+    );
   });
 });
